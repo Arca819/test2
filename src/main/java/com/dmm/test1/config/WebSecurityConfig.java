@@ -3,6 +3,7 @@ package com.dmm.test1.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -13,6 +14,7 @@ import com.dmm.test1.service.AccountUserDetailsService;
 
 @Configuration // 設定を行うクラスであることを指定
 @EnableWebSecurity // Spring Securityを利用することを設定
+@EnableGlobalMethodSecurity(prePostEnabled = true) // メソッド認可処理を有効化
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Autowired
 	private AccountUserDetailsService userDetailsService;
@@ -32,7 +34,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		// 認可の設定
-		http.authorizeRequests().antMatchers("/loginForm").permitAll() // loginFormhaは、全ユーザからのアクセスを許可
+		http.exceptionHandling() // 追記
+				.accessDeniedPage("/accessDeniedPage") // アクセス拒否された時に遷移するパス
+				.and() // 追記
+				.authorizeRequests().antMatchers("/loginForm").permitAll() // loginFormhaは、全ユーザからのアクセスを許可
 				.anyRequest().authenticated(); // loginForm以外は、認証を求める
 
 		// ログイン設定
